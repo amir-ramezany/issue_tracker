@@ -13,5 +13,9 @@ export const createProjectSchema = z.object({
     ),
   description: z.string().trim().max(1000).optional(),
 });
+// آیدی در URL رشته است؛ coerce آن را به عدد تبدیل می‌کند. max برای محدوده‌ی Int دیتابیس است
+export const projectIdParamsSchema = z.object({
+  projectId: z.coerce.number().int().positive().max(2147483647),
+});
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
