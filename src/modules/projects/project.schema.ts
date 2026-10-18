@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+export const createProjectSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  // حروف بزرگ و عدد، ۲ تا ۱۰ کاراکتر، با حرف شروع می‌شود. مثل WEB یا API2
+  key: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(
+      /^[A-Z][A-Z0-9]{1,9}$/,
+      "Key must be 2-10 letters or digits, starting with a letter",
+    ),
+  description: z.string().trim().max(1000).optional(),
+});
+
+export type CreateProjectInput = z.infer<typeof createProjectSchema>;
