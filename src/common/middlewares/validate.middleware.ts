@@ -10,14 +10,12 @@ export const validateBody =
     if (!result.success) {
       const issue = result.error.issues[0];
       const field = issue.path.join(".");
-      next(
-        new AppError(
-          400,
-          "VALIDATION_ERROR",
-          field ? `${field}: ${issue.message}` : issue.message,
-        ),
+
+      throw new AppError(
+        400,
+        "VALIDATION_ERROR",
+        field ? `${field}: ${issue.message}` : issue.message,
       );
-      return;
     }
 
     req.body = result.data; // داده‌ی تمیز (فیلدهای ناشناس حذف شده‌اند)

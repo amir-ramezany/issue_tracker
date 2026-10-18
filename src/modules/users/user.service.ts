@@ -1,6 +1,6 @@
 import { AppError } from "../../common/errors/appError";
 import * as userRepository from "./user.repository";
-
+import type { UpdateMeInput } from "./user.schema";
 export async function getMe(userId: number) {
   const user = await userRepository.findById(userId);
   if (!user) {
@@ -8,7 +8,6 @@ export async function getMe(userId: number) {
   }
   return user;
 }
-import type { UpdateMeInput } from "./user.schema";
 
 export async function updateMe(userId: number, input: UpdateMeInput) {
   const email = input.email.toLowerCase();
