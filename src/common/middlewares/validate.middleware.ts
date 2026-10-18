@@ -2,22 +2,33 @@ import type { RequestHandler } from "express";
 import type { ZodType } from "zod";
 import { AppError } from "../errors/appError";
 
+function check(schema: ZodType, data: unknown) {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    const field = issue.path.join(".");
+    throw new AppError(
+      400,
+      "VALIDATION_ERROR",
+      field ? `${field}: ${issue.message}` : issue.message,
+    );
+  }
+
+  return result.data; // داده‌ی تمیز (فیلدهای ناشناس حذف شده‌اند)
+}
+
 export const validateBody =
   (schema: ZodType): RequestHandler =>
   (req, _res, next) => {
-    const result = schema.safeParse(req.body);
+    req.body = check(schema, req.body);
+    next();
+  };
 
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      const field = issue.path.join(".");
-
-      throw new AppError(
-        400,
-        "VALIDATION_ERROR",
-        field ? `${field}: ${issue.message}` : issue.message,
-      );
-    }
-
-    req.body = result.data; // داده‌ی تمیز (فیلدهای ناشناس حذف شده‌اند)
+// پارامترهای URL (مثل :projectId) را چک می‌کند
+export const validateParams =
+  (schema: ZodType): RequestHandler =>
+  (req, _res, next) => {
+    check(schema, req.params);
     next();
   };
