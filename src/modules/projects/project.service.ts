@@ -1,7 +1,7 @@
 import { AppError } from "../../common/errors/appError";
 import { AuthUser } from "../../common/types/authUser";
 import * as projectRepository from "./project.repository";
-import type { CreateProjectInput } from "./project.schema";
+import type { CreateProjectInput, UpdateProjectInput } from "./project.schema";
 
 export async function createProject(
   input: CreateProjectInput,
@@ -40,4 +40,27 @@ async function getProjectForActor(projectId: number, actor: AuthUser) {
 
 export function getProject(projectId: number, actor: AuthUser) {
   return getProjectForActor(projectId, actor);
+}
+
+// فقط owner پروژه یا ادمین. عضو معمولی ۴۰۳ می‌گیرد چون پروژه را می‌بیند
+function assertCanManage(project: { ownerId: number }, actor: AuthUser) {
+  if (project.ownerId !== actor.id && actor.role !== "ADMIN") {
+    throw new AppError(403, "FORBIDDEN", "Only the project owner can do this");
+  }
+}
+
+export async function updateProject(
+  projectId: number,
+  input: UpdateProjectInput,
+  actor: AuthUser,
+) {
+  const project = await getProjectForActor(projectId, actor);
+  assertCanManage(project, actor);
+  return projectRepository.update(projectId, input);
+}
+
+export async function deleteProject(projectId: number, actor: AuthUser) {
+  const project = await getProjectForActor(projectId, actor);
+  assertCanManage(project, actor);
+  await projectRepository.remove(projectId);
 }

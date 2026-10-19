@@ -18,3 +18,17 @@ export async function getProject(req: Request, res: Response) {
   );
   res.status(200).json({ project });
 }
+
+export async function updateProject(req: Request, res: Response) {
+  const project = await projectService.updateProject(
+    Number(req.params.projectId),
+    req.body,
+    req.user!,
+  );
+  res.status(200).json({ project });
+}
+
+export async function deleteProject(req: Request, res: Response) {
+  await projectService.deleteProject(Number(req.params.projectId), req.user!);
+  res.status(204).send();
+}

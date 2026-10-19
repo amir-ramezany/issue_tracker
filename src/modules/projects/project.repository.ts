@@ -53,3 +53,15 @@ export function findById(id: number) {
     select: { ...projectSelect, members: { select: memberSelect } },
   });
 }
+
+export function update(
+  id: number,
+  data: { name?: string; description?: string },
+) {
+  return prisma.project.update({ where: { id }, data, select: projectSelect });
+}
+
+// اعضا، issueها و commentهای پروژه هم با Cascade پاک می‌شوند
+export function remove(id: number) {
+  return prisma.project.delete({ where: { id } });
+}
