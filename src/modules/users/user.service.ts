@@ -1,7 +1,7 @@
 import { AppError } from "../../common/errors/appError";
 import * as userRepository from "./user.repository";
 import type { UpdateMeInput } from "./user.schema";
-export async function getMe(userId: number) {
+export async function getUserById(userId: number) {
   const user = await userRepository.findById(userId);
   if (!user) {
     throw new AppError(404, "USER_NOT_FOUND", "User not found");

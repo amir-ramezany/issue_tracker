@@ -2,6 +2,7 @@ import { AppError } from "../../common/errors/appError";
 import { AuthUser } from "../../common/types/authUser";
 import * as projectRepository from "./project.repository";
 import type { CreateProjectInput, UpdateProjectInput } from "./project.schema";
+import * as userService from "../users/user.service";
 
 export async function createProject(
   input: CreateProjectInput,
@@ -63,4 +64,52 @@ export async function deleteProject(projectId: number, actor: AuthUser) {
   const project = await getProjectForActor(projectId, actor);
   assertCanManage(project, actor);
   await projectRepository.remove(projectId);
+}
+
+export async function addMember(
+  projectId: number,
+  userId: number,
+  actor: AuthUser,
+) {
+  const project = await getProjectForActor(projectId, actor);
+  assertCanManage(project, actor);
+
+  if (project.members.some((m) => m.user.id === userId)) {
+    throw new AppError(
+      409,
+      "ALREADY_MEMBER",
+      "User is already a member of this project",
+    );
+  }
+
+  await userService.getUserById(userId); // اگر کاربر وجود نداشته باشد ۴۰۴
+
+  return projectRepository.addMember(projectId, userId);
+}
+
+export async function removeMember(
+  projectId: number,
+  userId: number,
+  actor: AuthUser,
+) {
+  const project = await getProjectForActor(projectId, actor);
+  assertCanManage(project, actor);
+
+  if (userId === project.ownerId) {
+    throw new AppError(
+      400,
+      "OWNER_CANNOT_BE_REMOVED",
+      "The project owner cannot be removed",
+    );
+  }
+
+  if (!project.members.some((m) => m.user.id === userId)) {
+    throw new AppError(
+      404,
+      "MEMBER_NOT_FOUND",
+      "User is not a member of this project",
+    );
+  }
+
+  await projectRepository.removeMember(projectId, userId);
 }

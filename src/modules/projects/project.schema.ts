@@ -22,5 +22,13 @@ export const updateProjectSchema = z.object({
   description: z.string().trim().max(1000).optional(),
 });
 
+export const memberParamsSchema = projectIdParamsSchema.extend({
+  userId: z.coerce.number().int().positive().max(2147483647),
+});
+
+export const addMemberSchema = z.object({
+  userId: z.number().int().positive().max(2147483647),
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;

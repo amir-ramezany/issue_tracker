@@ -32,3 +32,21 @@ export async function deleteProject(req: Request, res: Response) {
   await projectService.deleteProject(Number(req.params.projectId), req.user!);
   res.status(204).send();
 }
+
+export async function addMember(req: Request, res: Response) {
+  const member = await projectService.addMember(
+    Number(req.params.projectId),
+    req.body.userId,
+    req.user!,
+  );
+  res.status(201).json({ member });
+}
+
+export async function removeMember(req: Request, res: Response) {
+  await projectService.removeMember(
+    Number(req.params.projectId),
+    Number(req.params.userId),
+    req.user!,
+  );
+  res.status(204).send();
+}

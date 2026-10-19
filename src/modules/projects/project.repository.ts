@@ -65,3 +65,16 @@ export function update(
 export function remove(id: number) {
   return prisma.project.delete({ where: { id } });
 }
+
+export function addMember(projectId: number, userId: number) {
+  return prisma.projectMember.create({
+    data: { projectId, userId }, // role پیش‌فرض MEMBER است
+    select: memberSelect,
+  });
+}
+
+export function removeMember(projectId: number, userId: number) {
+  return prisma.projectMember.delete({
+    where: { projectId_userId: { projectId, userId } },
+  });
+}
