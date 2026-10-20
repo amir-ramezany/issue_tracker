@@ -1,5 +1,5 @@
 import { prisma } from "../../config/prisma";
-import type { CreateIssueInput } from "./issue.schema";
+import type { CreateIssueInput, UpdateIssueInput } from "./issue.schema";
 
 const issueSelect = {
   id: true,
@@ -45,4 +45,8 @@ export function findManyByProject(projectId: number) {
 
 export function findById(id: number) {
   return prisma.issue.findUnique({ where: { id }, select: issueSelect });
+}
+
+export function update(id: number, data: UpdateIssueInput) {
+  return prisma.issue.update({ where: { id }, data, select: issueSelect });
 }

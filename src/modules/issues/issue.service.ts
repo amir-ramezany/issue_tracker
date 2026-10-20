@@ -2,7 +2,7 @@ import { AppError } from "../../common/errors/appError";
 import { AuthUser } from "../../common/types/authUser";
 import * as projectService from "../projects/project.service";
 import * as issueRepository from "./issue.repository";
-import type { CreateIssueInput } from "./issue.schema";
+import type { CreateIssueInput, UpdateIssueInput } from "./issue.schema";
 
 export async function createIssue(
   projectId: number,
@@ -22,7 +22,8 @@ export async function listIssues(projectId: number, actor: AuthUser) {
 // issue ناموجود و issue پروژه‌ی دیگران هر دو همان ۴۰۴ را می‌دهند.
 async function getIssueForActor(issueId: number, actor: AuthUser) {
   const issue = await issueRepository.findById(issueId);
-  const project = issue && (await projectService.findProjectForActor(issue.projectId, actor));
+  const project =
+    issue && (await projectService.findProjectForActor(issue.projectId, actor));
 
   if (!issue || !project) {
     throw new AppError(404, "ISSUE_NOT_FOUND", "Issue not found");
@@ -36,6 +37,42 @@ export async function getIssue(issueId: number, actor: AuthUser) {
   return issue;
 }
 
+export async function updateIssue(
+  issueId: number,
+  input: UpdateIssueInput,
+  actor: AuthUser,
+) {
+  const { issue, project } = await getIssueForActor(issueId, actor);
+  const isManager = projectService.canManageProject(project, actor);
 
+  // ویرایش: reporter، assignee، owner پروژه یا ادمین
+  const canEdit =
+    isManager || issue.reporterId === actor.id || issue.assigneeId === actor.id;
+  if (!canEdit) {
+    throw new AppError(403, "FORBIDDEN", "You cannot edit this issue");
+  }
 
+  // assign کردن: فقط owner یا ادمین، و فقط به عضو همان پروژه
+  if (input.assigneeId !== undefined) {
+    if (!isManager) {
+      throw new AppError(
+        403,
+        "FORBIDDEN",
+        "Only the project owner can assign issues",
+      );
+    }
 
+    const isMember = project.members.some(
+      (m) => m.user.id === input.assigneeId,
+    );
+    if (input.assigneeId !== null && !isMember) {
+      throw new AppError(
+        400,
+        "ASSIGNEE_NOT_MEMBER",
+        "Assignee must be a member of the project",
+      );
+    }
+  }
+
+  return issueRepository.update(issueId, input);
+}

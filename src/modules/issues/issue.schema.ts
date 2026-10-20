@@ -16,4 +16,17 @@ export const createIssueSchema = z.object({
   priority: prioritySchema.optional(),
 });
 
+const statusSchema = z.enum(["TODO", "IN_PROGRESS", "DONE"]);
+
+export const updateIssueSchema = z.object({
+  title: z.string().trim().min(1).max(200).optional(),
+  description: z.string().trim().max(5000).optional(),
+  status: statusSchema.optional(),
+  priority: prioritySchema.optional(),
+  // null یعنی assignee را بردار؛ نفرستادن یعنی تغییر نده
+  assigneeId: z.number().int().positive().max(2147483647).nullable().optional(),
+});
+
+export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
+
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;

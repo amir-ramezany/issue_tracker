@@ -4,11 +4,17 @@ import {
   validateBody,
   validateParams,
 } from "../../common/middlewares/validate.middleware";
-import { createIssue, getIssue, listIssues } from "./issue.controller";
+import {
+  createIssue,
+  getIssue,
+  listIssues,
+  updateIssue,
+} from "./issue.controller";
 import {
   createIssueSchema,
   issueParamsSchema,
   projectParamsSchema,
+  updateIssueSchema,
 } from "./issue.schema";
 
 const router = Router();
@@ -35,6 +41,14 @@ router.get(
   authenticate,
   validateParams(issueParamsSchema),
   getIssue,
+);
+
+router.patch(
+  "/issues/:issueId",
+  authenticate,
+  validateParams(issueParamsSchema),
+  validateBody(updateIssueSchema),
+  updateIssue,
 );
 
 export default router;

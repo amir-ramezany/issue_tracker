@@ -24,3 +24,12 @@ export async function getIssue(req: Request, res: Response) {
   );
   res.status(200).json({ issue });
 }
+
+export async function updateIssue(req: Request, res: Response) {
+  const issue = await issueService.updateIssue(
+    Number(req.params.issueId),
+    req.body,
+    req.user!,
+  );
+  res.status(200).json({ issue });
+}
