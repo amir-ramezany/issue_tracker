@@ -28,15 +28,43 @@ export function listProjects(actor: AuthUser) {
 
 // پروژه را برمی‌گرداند، به شرط اینکه actor عضو یا ادمین باشد.
 // برای غیرعضو ۴۰۴ می‌دهیم تا وجود پروژه لو نرود.
-async function getProjectForActor(projectId: number, actor: AuthUser) {
+// async function getProjectForActor(projectId: number, actor: AuthUser) {
+//   const project = await projectRepository.findById(projectId);
+//   const isMember = project?.members.some((m) => m.user.id === actor.id);
+
+//   if (!project || (!isMember && actor.role !== "ADMIN")) {
+//     throw new AppError(404, "PROJECT_NOT_FOUND", "Project not found");
+//   }
+
+//   return project;
+// }
+// پروژه را برمی‌گرداند اگر actor عضو یا ادمین باشد، وگرنه null
+export async function findProjectForActor(projectId: number, actor: AuthUser) {
   const project = await projectRepository.findById(projectId);
   const isMember = project?.members.some((m) => m.user.id === actor.id);
 
   if (!project || (!isMember && actor.role !== "ADMIN")) {
-    throw new AppError(404, "PROJECT_NOT_FOUND", "Project not found");
+    return null;
   }
 
   return project;
+}
+
+// همان، ولی به‌جای null خطای ۴۰۴ می‌دهد. برای غیرعضو هم ۴۰۴، تا وجود پروژه لو نرود.
+export async function getProjectForActor(projectId: number, actor: AuthUser) {
+  const project = await findProjectForActor(projectId, actor);
+  if (!project) {
+    throw new AppError(404, "PROJECT_NOT_FOUND", "Project not found");
+  }
+  return project;
+}
+
+// owner پروژه یا ادمین سراسری
+export function canManageProject(
+  project: { ownerId: number },
+  actor: AuthUser,
+) {
+  return project.ownerId === actor.id || actor.role === "ADMIN";
 }
 
 export function getProject(projectId: number, actor: AuthUser) {
@@ -44,8 +72,13 @@ export function getProject(projectId: number, actor: AuthUser) {
 }
 
 // فقط owner پروژه یا ادمین. عضو معمولی ۴۰۳ می‌گیرد چون پروژه را می‌بیند
+// function assertCanManage(project: { ownerId: number }, actor: AuthUser) {
+//   if (project.ownerId !== actor.id && actor.role !== "ADMIN") {
+//     throw new AppError(403, "FORBIDDEN", "Only the project owner can do this");
+//   }
+// }
 function assertCanManage(project: { ownerId: number }, actor: AuthUser) {
-  if (project.ownerId !== actor.id && actor.role !== "ADMIN") {
+  if (!canManageProject(project, actor)) {
     throw new AppError(403, "FORBIDDEN", "Only the project owner can do this");
   }
 }
