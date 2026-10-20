@@ -34,3 +34,15 @@ export function create(
     });
   });
 }
+
+export function findManyByProject(projectId: number) {
+  return prisma.issue.findMany({
+    where: { projectId },
+    select: issueSelect,
+    orderBy: { number: "desc" },
+  });
+}
+
+export function findById(id: number) {
+  return prisma.issue.findUnique({ where: { id }, select: issueSelect });
+}

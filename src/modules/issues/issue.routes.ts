@@ -4,8 +4,12 @@ import {
   validateBody,
   validateParams,
 } from "../../common/middlewares/validate.middleware";
-import { createIssue } from "./issue.controller";
-import { createIssueSchema, projectParamsSchema } from "./issue.schema";
+import { createIssue, getIssue, listIssues } from "./issue.controller";
+import {
+  createIssueSchema,
+  issueParamsSchema,
+  projectParamsSchema,
+} from "./issue.schema";
 
 const router = Router();
 
@@ -17,6 +21,20 @@ router.post(
   validateParams(projectParamsSchema),
   validateBody(createIssueSchema),
   createIssue,
+);
+
+router.get(
+  "/projects/:projectId/issues",
+  authenticate,
+  validateParams(projectParamsSchema),
+  listIssues,
+);
+
+router.get(
+  "/issues/:issueId",
+  authenticate,
+  validateParams(issueParamsSchema),
+  getIssue,
 );
 
 export default router;

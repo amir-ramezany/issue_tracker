@@ -9,3 +9,18 @@ export async function createIssue(req: Request, res: Response) {
   );
   res.status(201).json({ issue });
 }
+export async function listIssues(req: Request, res: Response) {
+  const issues = await issueService.listIssues(
+    Number(req.params.projectId),
+    req.user!,
+  );
+  res.status(200).json({ issues });
+}
+
+export async function getIssue(req: Request, res: Response) {
+  const issue = await issueService.getIssue(
+    Number(req.params.issueId),
+    req.user!,
+  );
+  res.status(200).json({ issue });
+}
