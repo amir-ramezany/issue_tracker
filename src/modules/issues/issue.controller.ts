@@ -33,3 +33,8 @@ export async function updateIssue(req: Request, res: Response) {
   );
   res.status(200).json({ issue });
 }
+
+export async function deleteIssue(req: Request, res: Response) {
+  await issueService.deleteIssue(Number(req.params.issueId), req.user!);
+  res.status(204).send();
+}

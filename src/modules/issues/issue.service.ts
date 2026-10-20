@@ -76,3 +76,17 @@ export async function updateIssue(
 
   return issueRepository.update(issueId, input);
 }
+
+export async function deleteIssue(issueId: number, actor: AuthUser) {
+  const { project } = await getIssueForActor(issueId, actor);
+
+  if (!projectService.canManageProject(project, actor)) {
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      "Only the project owner can delete issues",
+    );
+  }
+
+  await issueRepository.remove(issueId);
+}

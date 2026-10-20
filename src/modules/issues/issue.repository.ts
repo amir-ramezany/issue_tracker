@@ -50,3 +50,7 @@ export function findById(id: number) {
 export function update(id: number, data: UpdateIssueInput) {
   return prisma.issue.update({ where: { id }, data, select: issueSelect });
 }
+
+export function remove(id: number) {
+  return prisma.issue.delete({ where: { id } });
+}

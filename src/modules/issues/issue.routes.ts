@@ -6,6 +6,7 @@ import {
 } from "../../common/middlewares/validate.middleware";
 import {
   createIssue,
+  deleteIssue,
   getIssue,
   listIssues,
   updateIssue,
@@ -49,6 +50,13 @@ router.patch(
   validateParams(issueParamsSchema),
   validateBody(updateIssueSchema),
   updateIssue,
+);
+
+router.delete(
+  "/issues/:issueId",
+  authenticate,
+  validateParams(issueParamsSchema),
+  deleteIssue,
 );
 
 export default router;
