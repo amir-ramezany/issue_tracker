@@ -24,3 +24,19 @@ export function findManyByIssue(issueId: number) {
     orderBy: { id: "asc" },
   });
 }
+
+export function findById(id: number) {
+  return prisma.comment.findUnique({ where: { id }, select: commentSelect });
+}
+
+export function updateBody(id: number, body: string) {
+  return prisma.comment.update({
+    where: { id },
+    data: { body },
+    select: commentSelect,
+  });
+}
+
+export function remove(id: number) {
+  return prisma.comment.delete({ where: { id } });
+}

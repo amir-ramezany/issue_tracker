@@ -4,8 +4,8 @@ import {
   validateBody,
   validateParams,
 } from "../../common/middlewares/validate.middleware";
-import { createComment, listComments } from "./comment.controller";
-import { commentBodySchema, issueParamsSchema } from "./comment.schema";
+import { createComment, deleteComment, listComments, updateComment } from "./comment.controller";
+import { commentBodySchema, commentParamsSchema, issueParamsSchema } from "./comment.schema";
 
 const router = Router();
 
@@ -23,6 +23,21 @@ router.get(
   authenticate,
   validateParams(issueParamsSchema),
   listComments,
+);
+
+router.patch(
+  "/comments/:commentId",
+  authenticate,
+  validateParams(commentParamsSchema),
+  validateBody(commentBodySchema),
+  updateComment,
+);
+
+router.delete(
+  "/comments/:commentId",
+  authenticate,
+  validateParams(commentParamsSchema),
+  deleteComment,
 );
 
 export default router;
