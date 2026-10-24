@@ -21,7 +21,8 @@ function check(schema: ZodType, data: unknown) {
 export const validateBody =
   (schema: ZodType): RequestHandler =>
   (req, _res, next) => {
-    req.body = check(schema, req.body);
+    // اگر بدنه‌ای نیامده باشد req.body خالی است؛ با {} پیام خطای فیلدها را می‌گیریم
+    req.body = check(schema, req.body ?? {});
     next();
   };
 
