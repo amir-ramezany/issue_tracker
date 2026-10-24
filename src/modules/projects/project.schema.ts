@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idSchema, jsonIdSchema } from "../../common/schemas/id.schema";
 
 export const createProjectSchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -15,7 +16,7 @@ export const createProjectSchema = z.object({
 });
 // آیدی در URL رشته است؛ coerce آن را به عدد تبدیل می‌کند. max برای محدوده‌ی Int دیتابیس است
 export const projectIdParamsSchema = z.object({
-  projectId: z.coerce.number().int().positive().max(2147483647),
+  projectId: idSchema,
 });
 export const updateProjectSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
@@ -23,11 +24,11 @@ export const updateProjectSchema = z.object({
 });
 
 export const memberParamsSchema = projectIdParamsSchema.extend({
-  userId: z.coerce.number().int().positive().max(2147483647),
+  userId: idSchema,
 });
 
 export const addMemberSchema = z.object({
-  userId: z.number().int().positive().max(2147483647),
+  userId: jsonIdSchema,
 });
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;

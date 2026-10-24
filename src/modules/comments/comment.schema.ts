@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { idSchema } from "../../common/schemas/id.schema";
 
 export const issueParamsSchema = z.object({
-  issueId: z.coerce.number().int().positive().max(2147483647),
+  issueId: idSchema,
 });
 
 export const commentParamsSchema = z.object({
-  commentId: z.coerce.number().int().positive().max(2147483647),
+  commentId: idSchema,
 });
 
 // هم برای ساخت و هم برای ویرایش

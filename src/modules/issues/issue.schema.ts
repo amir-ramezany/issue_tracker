@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { idSchema, jsonIdSchema } from "../../common/schemas/id.schema";
 
 export const projectParamsSchema = z.object({
-  projectId: z.coerce.number().int().positive().max(2147483647),
+  projectId: idSchema,
 });
 
 export const issueParamsSchema = z.object({
-  issueId: z.coerce.number().int().positive().max(2147483647),
+  issueId: idSchema,
 });
 
 const prioritySchema = z.enum(["LOW", "MEDIUM", "HIGH"]);
@@ -24,7 +25,7 @@ export const updateIssueSchema = z.object({
   status: statusSchema.optional(),
   priority: prioritySchema.optional(),
   // null یعنی assignee را بردار؛ نفرستادن یعنی تغییر نده
-  assigneeId: z.number().int().positive().max(2147483647).nullable().optional(),
+  assigneeId: jsonIdSchema.nullable().optional(),
 });
 
 export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
