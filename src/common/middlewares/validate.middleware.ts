@@ -33,3 +33,12 @@ export const validateParams =
     check(schema, req.params);
     next();
   };
+
+// query string را چک می‌کند. در Express 5، req.query فقط‌خواندنی است
+// و نمی‌شود جایگزینش کرد، پس نتیجه‌ی تمیز را در res.locals.query می‌گذاریم.
+export const validateQuery =
+  (schema: ZodType): RequestHandler =>
+  (req, res, next) => {
+    res.locals.query = check(schema, req.query);
+    next();
+  };
