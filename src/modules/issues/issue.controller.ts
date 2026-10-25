@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import * as issueService from "./issue.service";
+import { ListIssuesQuery } from "./issue.schema";
 
 export async function createIssue(req: Request, res: Response) {
   const issue = await issueService.createIssue(
@@ -9,12 +10,15 @@ export async function createIssue(req: Request, res: Response) {
   );
   res.status(201).json({ issue });
 }
+
 export async function listIssues(req: Request, res: Response) {
-  const issues = await issueService.listIssues(
+  const query = res.locals.query as ListIssuesQuery;
+  const result = await issueService.listIssues(
     Number(req.params.projectId),
+    query,
     req.user!,
   );
-  res.status(200).json({ issues });
+  res.status(200).json(result);
 }
 
 export async function getIssue(req: Request, res: Response) {

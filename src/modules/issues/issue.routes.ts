@@ -3,6 +3,7 @@ import { authenticate } from "../../common/middlewares/authenticate.middleware";
 import {
   validateBody,
   validateParams,
+  validateQuery,
 } from "../../common/middlewares/validate.middleware";
 import {
   createIssue,
@@ -14,6 +15,7 @@ import {
 import {
   createIssueSchema,
   issueParamsSchema,
+  listIssuesQuerySchema,
   projectParamsSchema,
   updateIssueSchema,
 } from "./issue.schema";
@@ -34,6 +36,7 @@ router.get(
   "/projects/:projectId/issues",
   authenticate,
   validateParams(projectParamsSchema),
+  validateQuery(listIssuesQuerySchema),
   listIssues,
 );
 

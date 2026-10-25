@@ -2,7 +2,11 @@ import { AppError } from "../../common/errors/appError";
 import { AuthUser } from "../../common/types/authUser";
 import * as projectService from "../projects/project.service";
 import * as issueRepository from "./issue.repository";
-import type { CreateIssueInput, UpdateIssueInput } from "./issue.schema";
+import type {
+  CreateIssueInput,
+  ListIssuesQuery,
+  UpdateIssueInput,
+} from "./issue.schema";
 
 export async function createIssue(
   projectId: number,
@@ -13,9 +17,27 @@ export async function createIssue(
   return issueRepository.create(projectId, actor.id, input); // reporter همان کاربر لاگین‌شده
 }
 
-export async function listIssues(projectId: number, actor: AuthUser) {
+export async function listIssues(
+  projectId: number,
+  query: ListIssuesQuery,
+  actor: AuthUser,
+) {
   await projectService.getProjectForActor(projectId, actor);
-  return issueRepository.findManyByProject(projectId);
+
+  const { issues, totalItems } = await issueRepository.findManyByProject(
+    projectId,
+    query,
+  );
+
+  return {
+    issues,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      totalItems,
+      totalPages: Math.ceil(totalItems / query.limit),
+    },
+  };
 }
 
 // issue و پروژه‌اش را برمی‌گرداند، به شرطی که actor به آن پروژه دسترسی داشته باشد.

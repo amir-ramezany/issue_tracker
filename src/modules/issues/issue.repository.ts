@@ -1,5 +1,10 @@
 import { prisma } from "../../config/prisma";
-import type { CreateIssueInput, UpdateIssueInput } from "./issue.schema";
+import { Prisma } from "../../generated/prisma/client";
+import type {
+  CreateIssueInput,
+  ListIssuesQuery,
+  UpdateIssueInput,
+} from "./issue.schema";
 
 const issueSelect = {
   id: true,
@@ -35,12 +40,45 @@ export function create(
   });
 }
 
-export function findManyByProject(projectId: number) {
-  return prisma.issue.findMany({
-    where: { projectId },
-    select: issueSelect,
-    orderBy: { number: "desc" },
-  });
+export async function findManyByProject(
+  projectId: number,
+  query: ListIssuesQuery,
+) {
+  // مقدار undefined در where نادیده گرفته می‌شود، پس فیلترهای نفرستاده اثری ندارند
+  const where: Prisma.IssueWhereInput = {
+    projectId,
+    status: query.status,
+    priority: query.priority,
+    assigneeId: query.assigneeId,
+    reporterId: query.reporterId,
+    ...(query.search && {
+      OR: [
+        { title: { contains: query.search, mode: "insensitive" } },
+        { description: { contains: query.search, mode: "insensitive" } },
+      ],
+    }),
+  };
+
+  // sortBy قبلاً با Zod به لیست مجاز محدود شده، پس cast امن است.
+  // id به‌عنوان معیار دوم، ترتیب را بین صفحه‌ها پایدار نگه می‌دارد.
+  const orderBy = [
+    { [query.sortBy]: query.order },
+    { id: query.order },
+  ] as Prisma.IssueOrderByWithRelationInput[];
+
+  // دو کوئری در یک تراکنش: صفحه‌ی فعلی و تعداد کل
+  const [issues, totalItems] = await prisma.$transaction([
+    prisma.issue.findMany({
+      where,
+      select: issueSelect,
+      orderBy,
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    }),
+    prisma.issue.count({ where }),
+  ]);
+
+  return { issues, totalItems };
 }
 
 export function findById(id: number) {

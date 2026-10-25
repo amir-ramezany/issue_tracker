@@ -28,6 +28,23 @@ export const updateIssueSchema = z.object({
   assigneeId: jsonIdSchema.nullable().optional(),
 });
 
+export const listIssuesQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  status: statusSchema.optional(),
+  priority: prioritySchema.optional(),
+  assigneeId: idSchema.optional(),
+  reporterId: idSchema.optional(),
+  search: z.string().trim().min(1).max(100).optional(),
+  // فقط این فیلدها اجازه‌ی مرتب‌سازی دارند؛ نام ستون از کلاینت مستقیم استفاده نمی‌شود
+  sortBy: z
+    .enum(["number", "title", "priority", "status", "createdAt", "updatedAt"])
+    .default("number"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export type ListIssuesQuery = z.infer<typeof listIssuesQuerySchema>;
+
 export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
 
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;
