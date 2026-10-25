@@ -79,7 +79,11 @@ export function getProject(projectId: number, actor: AuthUser) {
 // }
 function assertCanManage(project: { ownerId: number }, actor: AuthUser) {
   if (!canManageProject(project, actor)) {
-    throw new AppError(403, "FORBIDDEN", "Only the project owner can do this");
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      "Only the project owner or admin can do this",
+    );
   }
 }
 

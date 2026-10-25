@@ -20,40 +20,40 @@ export async function listIssues(projectId: number, actor: AuthUser) {
 
 // issue و پروژه‌اش را برمی‌گرداند، به شرطی که actor به آن پروژه دسترسی داشته باشد.
 // issue ناموجود و issue پروژه‌ی دیگران هر دو همان ۴۰۴ را می‌دهند.
-// async function getIssueForActor(issueId: number, actor: AuthUser) {
-//   const issue = await issueRepository.findById(issueId);
-//   const project =
-//     issue && (await projectService.findProjectForActor(issue.projectId, actor));
-
-//   if (!issue || !project) {
-//     throw new AppError(404, "ISSUE_NOT_FOUND", "Issue not found");
-//   }
-
-//   return { issue, project };
-// }
-
-// issue و پروژه‌اش را برمی‌گرداند اگر actor به آن پروژه دسترسی داشته باشد، وگرنه null
-export async function findIssueForActor(issueId: number, actor: AuthUser) {
+export async function getIssueForActor(issueId: number, actor: AuthUser) {
   const issue = await issueRepository.findById(issueId);
-  if (!issue) return null;
+  const project =
+    issue && (await projectService.findProjectForActor(issue.projectId, actor));
 
-  const project = await projectService.findProjectForActor(
-    issue.projectId,
-    actor,
-  );
-  if (!project) return null;
+  if (!issue || !project) {
+    throw new AppError(404, "ISSUE_NOT_FOUND", "Issue not found");
+  }
 
   return { issue, project };
 }
 
-// همان، ولی به‌جای null خطای ۴۰۴ می‌دهد. issue ناموجود و issue پروژه‌ی دیگران یک پیام دارند.
-export async function getIssueForActor(issueId: number, actor: AuthUser) {
-  const result = await findIssueForActor(issueId, actor);
-  if (!result) {
-    throw new AppError(404, "ISSUE_NOT_FOUND", "Issue not found");
-  }
-  return result;
-}
+// issue و پروژه‌اش را برمی‌گرداند اگر actor به آن پروژه دسترسی داشته باشد، وگرنه null
+// export async function findIssueForActor(issueId: number, actor: AuthUser) {
+//   const issue = await issueRepository.findById(issueId);
+//   if (!issue) return null;
+
+//   const project = await projectService.findProjectForActor(
+//     issue.projectId,
+//     actor,
+//   );
+//   if (!project) return null;
+
+//   return { issue, project };
+// }
+
+// // همان، ولی به‌جای null خطای ۴۰۴ می‌دهد. issue ناموجود و issue پروژه‌ی دیگران یک پیام دارند.
+// export async function getIssueForActor(issueId: number, actor: AuthUser) {
+//   const result = await findIssueForActor(issueId, actor);
+//   if (!result) {
+//     throw new AppError(404, "ISSUE_NOT_FOUND", "Issue not found");
+//   }
+//   return result;
+// }
 
 export async function getIssue(issueId: number, actor: AuthUser) {
   const { issue } = await getIssueForActor(issueId, actor);
