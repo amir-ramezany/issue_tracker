@@ -78,6 +78,12 @@ export async function findManyByProject(
     prisma.issue.count({ where }),
   ]);
 
+  //we can use this promis.all instead of transaction here cause we just read from database and not write anything ,, promis.all doing two queries at the same time on two threads usually
+  // const [issues, totalItems] = await Promise.all([
+  //   prisma.issue.findMany({ where, select: issueSelect, orderBy, skip: (query.page - 1) * query.limit, take: query.limit }),
+  //   prisma.issue.count({ where }),
+  // ]);
+
   return { issues, totalItems };
 }
 
